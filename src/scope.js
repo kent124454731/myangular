@@ -33,28 +33,52 @@ Scope.prototype.$watch = function (watchFn, listenerFn, last) {
 //     });
 // };
 
-Scope.prototype.$digest = function () {
+// Scope.prototype.$digest = function () {
+//     var self = this;
+//     var newValue, oldValue;
+//     _.forEach(this.$$watchers, function(watcher) {
+//         newValue = watcher.watchFn(self);   //这里为newValue的赋值，具体监听的是哪个属性值由调用函数决定，但他都是Scope的原型方法。
+//         oldValue = watcher.last;
+//         if (newValue !== oldValue) {
+//             watcher.last = newValue;
+//             watcher.listenerFn(newValue,
+//                 (oldValue==initWatchVal ? newValue:oldValue)
+//                 , self);
+//         }
+//     });
+//     //与上等同
+//     // this.$$watchers.forEach(function (watcher) {
+//     //     newValue = watcher.watchFn(self);
+//     //     oldValue = watcher.last;
+//     //     if (newValue !== oldValue) {
+//     //         watcher.last = newValue;
+//     //         watcher.listenerFn(newValue, oldValue, self);
+//     //     }
+//     // })
+// };
+
+Scope.prototype.$$digestOnce = function() {
     var self = this;
-    var newValue, oldValue;
+    var newValue, oldValue, dirty;
     _.forEach(this.$$watchers, function(watcher) {
-        newValue = watcher.watchFn(self);   //这里为newValue的赋值，具体监听的是哪个属性值由调用函数决定，但他都是Scope的原型方法。
+        newValue = watcher.watchFn(self);
         oldValue = watcher.last;
         if (newValue !== oldValue) {
             watcher.last = newValue;
             watcher.listenerFn(newValue,
-                (oldValue==initWatchVal ? newValue:oldValue)
-                , self);
+                (oldValue === initWatchVal ? newValue : oldValue),
+                self);
+            dirty = true;
         }
     });
-    //与上等同
-    // this.$$watchers.forEach(function (watcher) {
-    //     newValue = watcher.watchFn(self);
-    //     oldValue = watcher.last;
-    //     if (newValue !== oldValue) {
-    //         watcher.last = newValue;
-    //         watcher.listenerFn(newValue, oldValue, self);
-    //     }
-    // })
+    return dirty;
+};
+
+Scope.prototype.$digest = function() {
+    var dirty;
+    do {
+        dirty = this.$$digestOnce();
+    } while (dirty);
 };
 
 

@@ -27,3 +27,17 @@ function testUndefined2() {
     }
 }
 // console.log(testUndefined2());
+
+function digest() {
+    var ttl = 10;
+    var dirty = true;
+    while (dirty){
+        console.log(ttl);
+        if(!(ttl--)){    //负数为false
+            dirty = false;
+        }
+    }
+
+}
+digest();
+

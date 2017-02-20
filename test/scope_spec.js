@@ -183,24 +183,44 @@ describe('digest', function () {
     /**
      * Short-Circuiting The Digest When The Last Watch Is Clean
      */
-    it("ends the digest when the last watch is clean", function() {
-        scope.array = _.range(100);
-        var watchExecutions = 0;
-        _.times(100, function(i) {
-            scope.$watch(
-                function(scope) {
-                    watchExecutions++;
-                    return scope.array[i];
-                },
-                function(newValue, oldValue, scope) {
-                }
-            );
-        });
+    // it("ends the digest when the last watch is clean", function() {
+    //     scope.array = _.range(100);
+    //     var watchExecutions = 0;
+    //     _.times(100, function(i) {
+    //         scope.$watch(
+    //             function(scope) {
+    //                 watchExecutions++;
+    //                 return scope.array[i];
+    //             },
+    //             function(newValue, oldValue, scope) {
+    //             }
+    //         );
+    //     });
+    //     scope.$digest();
+    //     expect(watchExecutions).toBe(200);
+    //     scope.array[0] = 420;
+    //     scope.$digest();
+    //     expect(watchExecutions).toBe(301);
+    //     // expect(ttl).toBe(1);
+    // });
+
+    /**
+     * Value-Based Dirty-Checking
+     */
+    it("compares based on value if enabled", function() {
+        scope.aValue = [1, 2, 3];
+        scope.counter = 0;
+        scope.$watch(
+            function(scope) { return scope.aValue; },
+            function(newValue, oldValue, scope) {
+                scope.counter++;
+            },
+            true
+        );
         scope.$digest();
-        expect(watchExecutions).toBe(200);
-        scope.array[0] = 420;
+        expect(scope.counter).toBe(1);
+        scope.aValue.push(4);
         scope.$digest();
-        expect(watchExecutions).toBe(301);
-        // expect(ttl).toBe(1);
+        expect(scope.counter).toBe(2);
     });
 });
